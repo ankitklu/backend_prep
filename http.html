@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-</head>
-<body>
+  </head>
+  <body>
     <button id="get">Get Request</button>
     <button id="post">Post Request</button>
     <button id="update">Update Request</button>
@@ -13,31 +13,52 @@
     <button id="put">Replace Request</button>
 
     <script>
-        const getBtn = document.querySelector("#get");
-        const postBtn = document.querySelector("#post");
+      const getBtn = document.querySelector("#get");
+      const postBtn = document.querySelector("#post");
+      const updateBtn = document.querySelector("#update");
+      const deleteBtn = document.querySelector("#delete");
 
-        getBtn.addEventListener("click", async function(){
-            const resp = await fetch('https://dummyjson.com/posts/1', {
-                method: "GET",
-            });
-            const respData = await resp.json();
-            console.log("Response Data:", respData);
+      getBtn.addEventListener("click", async function () {
+        const resp = await fetch("https://dummyjson.com/posts/1", {
+          method: "GET",
         });
+        const respData = await resp.json();
+        console.log("Response Data:", respData);
+      });
 
-        postBtn.addEventListener("click", async function(){
-            const resp = await fetch('https://dummyjson.com/posts/add', {
-                method: "POST",
-                body: JSON.stringify({
-                    title: 'I am in love with someone. ',
-                    userId:5,
-                }),
-                headers:{'Content-Type':'application/json'},
-            });
-            const respData = await resp.json();
-            console.log("Response Data:", respData);
+      postBtn.addEventListener("click", async function () {
+        const resp = await fetch("https://dummyjson.com/posts/add", {
+          method: "POST",
+          body: JSON.stringify({
+            title: "I am in love with someone. ",
+            userId: 5,
+          }),
+          headers: { "Content-Type": "application/json" },
         });
+        const respData = await resp.json();
+        console.log("Response Data:", respData);
+      });
 
+      updateBtn.addEventListener("click", async function () {
+        const resp = await /* updating title of product with id 1 */
+        fetch("https://dummyjson.com/products/1", {
+          method: "PUT" /* or PATCH */,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: "iPhone Galaxy +1",
+          }),
+        })
+          .then((res) => res.json())
+          .then(console.log);
+      });
+
+      deleteBtn.addEventListener("click",async function(){
+        const resp= await fetch("https://dummyjson.com/products/1",{
+            method: "DELETE"
+        })
+        .then(res => res.json()).then(console.log);
+      })
 
     </script>
-</body>
+  </body>
 </html>

@@ -1,0 +1,20 @@
+{
+  "name": "intro_to_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "1_fs.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx nodemon express_1.js",
+    "start": "node express_1.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
