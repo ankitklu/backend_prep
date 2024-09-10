@@ -2,6 +2,7 @@ const express= require("express");
 const app= express();
 const mongoose= require("mongoose");
 const dotenv= require("dotenv");
+app.use(express.json()); //middlewares
 
 dotenv.config();
 
@@ -17,22 +18,25 @@ mongoose.connect(dbUrl)
 const schemaRules={
     name:{
         type: String,
-        required: true,
+        required: [true,"Name is required"],
     },
     email:{
         type: String,
         required: true,
-        unique: true
+        unique: [true,"Email should be unique"]
     },
     password:{
         type: String,
         required: true,
-        minLength: 10,
+        minLength: [6,"Password should be of length 6 or more"],
     },
     confirmPassword:{
         type: String,
         required: true,
         //custom validation to check whether the "congirmPassword" is same as that of "password"
+        validate: [function(){
+            return this.password==this.confirmPassword;
+        },"Enter the exact password u entered earlier"],
     },
     createdAt:{
         type: Date,
@@ -50,11 +54,19 @@ const schemaRules={
 }
 
 const userSchema = new mongoose.Schema(schemaRules);
+
+app.prependListener("save",function(next){
+    this.confirmPassword= undefined;
+    next();
+});
+
 const UserModel =mongoose.model("User",userSchema);
 
-app.use(express.json()); //middlewares
 
-app.post("/user",async function (req, res){
+
+
+
+const createUser= async function (req, res){
     try{
         const userObject= req.body;
         const user= await UserModel.create(userObject);
@@ -66,7 +78,62 @@ app.post("/user",async function (req, res){
             error: err
         })
     }
-})
+}
+
+const getAllUser= async (req,res)=>{
+    try{
+        const user= await UserModel.find();
+        if(user.length!=0){
+            res.status(200).json({
+                message: user
+            })
+        }
+        else{
+            res.status(404).json({
+                message: "Did not find user"
+            })
+        }
+    }
+    catch(err){
+        res.status(500).josn({
+            message: "Internal Server Error",
+            error: err.message
+        })
+    }
+}
+
+const getUserById= async(req, res)=>{
+    try{
+        const id = req.params.id;
+        const user= await UserModel.findById(id);
+        if(user){
+            user.password= undefined;
+            user.__v= undefined;
+            if(user.confirmPassword){
+                user.confirmPassword=undefined;
+            }
+            res.status(200).json({
+                message: user
+            })
+        }
+        else{
+            res.staus(201).json({
+                message: "user not found"
+            });
+        }
+    }
+    catch(err){
+        res.status(500).json({
+            message: "Internal Server Error",
+            error: err.message
+        })
+    }
+}
+
+
+app.post("/user",createUser);
+app.get("/user",getAllUser);
+app.get("/user/:id", getUserById);
 
 app.listen(3000, function(req, res){
     console.log("Server started at port no 3000");
