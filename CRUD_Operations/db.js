@@ -107,8 +107,6 @@ const getUserById= async(req, res)=>{
         const id = req.params.id;
         const user= await UserModel.findById(id);
         if(user){
-            user.password= undefined;
-            user.__v= undefined;
             if(user.confirmPassword){
                 user.confirmPassword=undefined;
             }
@@ -130,10 +128,37 @@ const getUserById= async(req, res)=>{
     }
 }
 
+const deleteUser= async(req,res)=>{
+    try{
+        let {id}=  req.params;
+        const user= await UserModel.findByIdAndDelete(id);
+        if(user===null){
+            res.status(404).json({
+                status:"success",
+                message: "User does not exists"
+            })
+        }
+        else{
+            res.status(200).json({
+                status: "success",
+                message: "User is deleted",
+                user:user
+            })
+        }
+    }
+    catch(err){
+        res.status(500).json({
+            message : "Internal Server Error",
+            error: err.message
+        })
+    }
+}
+
 
 app.post("/user",createUser);
 app.get("/user",getAllUser);
 app.get("/user/:id", getUserById);
+app.delete("/user/:id", deleteUser);
 
 app.listen(3000, function(req, res){
     console.log("Server started at port no 3000");
