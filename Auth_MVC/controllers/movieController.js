@@ -1,9 +1,9 @@
+const MovieModel = require("../models/movieModels");
 
-
-const createUser= async function (req, res){
+const createMovie= async function (req, res){
     try{
-        const userObject= req.body;
-        const user= await UserModel.create(userObject);
+        const movieObject= req.body;
+        const user= await MovieModel.create(movieObject);
         res.status(201).json(user);
     }
     catch(err){
@@ -14,17 +14,17 @@ const createUser= async function (req, res){
     }
 }
 
-const getAllUser= async (req,res)=>{
+const getAllMovie= async (req,res)=>{
     try{
-        const user= await UserModel.find();
-        if(user.length!=0){
+        const movie= await MovieModel.find();
+        if(movie.length!=0){
             res.status(200).json({
-                message: user
+                message: movie
             })
         }
         else{
             res.status(404).json({
-                message: "Did not find user"
+                message: "Did not find movie"
             })
         }
     }
@@ -36,21 +36,21 @@ const getAllUser= async (req,res)=>{
     }
 }
 
-const getUserById= async(req, res)=>{
+const getMovie= async(req, res)=>{
     try{
         const id = req.params.id;
-        const user= await UserModel.findById(id);
-        if(user){
-            if(user.confirmPassword){
-                user.confirmPassword=undefined;
+        const movie= await MovieModel.findById(id);
+        if(movie){
+            if(movie.confirmPassword){
+                movie.confirmPassword=undefined;
             }
             res.status(200).json({
-                message: user
+                message: movie
             })
         }
         else{
             res.staus(201).json({
-                message: "user not found"
+                message: "movie not found"
             });
         }
     }
@@ -62,21 +62,21 @@ const getUserById= async(req, res)=>{
     }
 }
 
-const deleteUser= async(req,res)=>{
+const deleteMovie= async(req,res)=>{
     try{
         let {id}=  req.params;
-        const user= await UserModel.findByIdAndDelete(id);
-        if(user===null){
+        const movie= await MovieModel.findByIdAndDelete(id);
+        if(movie===null){
             res.status(404).json({
                 status:"success",
-                message: "User does not exists"
+                message: "movie does not exists"
             })
         }
         else{
             res.status(200).json({
                 status: "success",
-                message: "User is deleted",
-                user:user
+                message: "movie is deleted",
+                movie:movie
             })
         }
     }
@@ -88,9 +88,10 @@ const deleteUser= async(req,res)=>{
     }
 }
 
-module.exports = {
-    createUser,
-    getAllUser,
-    getUserById,
-    deleteUser
+
+module.exports= {
+    createMovie,
+    getAllMovie,
+    getMovie,
+    deleteMovie
 }
