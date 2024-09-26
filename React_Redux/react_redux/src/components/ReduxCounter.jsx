@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import counterSlice from '../counterSlice';
+import counterSlice from '../redux/slice/CounterSlice';
+import store from '../redux/store';
 const actions =  counterSlice.actions;
-import store from '../store';
+
 
 function ReduxCounter() {
 
