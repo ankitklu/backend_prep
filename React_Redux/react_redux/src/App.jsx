@@ -6,6 +6,8 @@ import ReduxCounter from './components/ReduxCounter'
 import NormalCounter from './components/NormalInputCounter'
 import NormalInputCounter from './components/NormalInputCounter'
 import ReduxInputCounter from './components/ReduxInputCounter'
+import UserComponent from './components/UserComponent'
+import ReduxUser from './components/ReduxUser'
 
 function App() {
 
@@ -13,7 +15,9 @@ function App() {
     <>
       {/* <NormalInputCounter/> */}
       {/* <ReduxCounter/> */}
-      <ReduxInputCounter/>
+      {/* <ReduxInputCounter/> */}
+      {/* <UserComponent/> */}
+      <ReduxUser/>
     </>
   )
 }
