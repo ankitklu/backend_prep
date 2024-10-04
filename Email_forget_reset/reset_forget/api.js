@@ -188,7 +188,74 @@ async function forgetPasswordHandler(req, res){
 }
 
 async function resetPasswordHandler(req, res){
+  try{
+    /*****
+     * 1. id, id
+     * 2. if otp , password , confirmPassword are present
+     *        * otp shouldn't be expired
+     *        * otp compare -> if matches
+     *        * password update
+     *        *re-route them to login page
+     * 
+     */
+      let resetDetails= req.body;
+      if(!resetDetails.password || !resetDetails.confirmPassword || !resetDetails.otp || resetDetails.password!=resetDetails.confirmPassword){
+        res.status(401).json({
+          status: "failure",
+          message: "invalid request"
+        })
+      }
 
+      const userId = req.params.userId;
+      const user = await UserModel.findById(userId);
+      if(user==null){
+        return res.status(404).json({
+          status: "failure",
+          message: "user not found"
+        })
+      }
+      if(user.otp == undefined){
+        return res.status(401).json({
+          status: "failure",
+          message: "unauthorized access to reset Password"
+        })
+      }
+
+      if(Date.now() > user.otpExpiry){
+        return res.status(401).json({
+          status: "failure",
+          message: "otp expired"
+        })
+      }
+
+      if(user.otp != resetDetails.otp){
+        return res.status(401).json({
+          status: "failure",
+          message: "otp is incorrect"
+        })
+      }
+
+      user.password= resetDetails.password;
+      user.confirmPassword= resetDetails.confirmPassword;
+
+      user.otp = undefined;
+      user.otpExpiry= undefined;
+
+      await user.save();
+      res.status(200).json({
+        staus:"success",
+        message: "password reset successfully"
+      })
+
+
+  }
+  catch(err){
+    console.log(err);
+    res.status(500).json({
+      message: err.message,
+      status: "failure"
+    })
+  }
 }
 
 app.post("api/auth/login", loginHandler);

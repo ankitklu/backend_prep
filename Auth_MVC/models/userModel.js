@@ -38,15 +38,28 @@ const schemaRules={
         type: String,
         enum: ["user", "admin", "feed curator"],   //usecase is a string can be anything for this validation but is it a valid String defines the role of enum
         default: "user"
+    },
+    otp:{
+        type: String
+    },
+    otpExpiry:{
+        type: Date
     }
 }
 
+
 const userSchema = new mongoose.Schema(schemaRules);
 
-app.prependListener("save",function(next){
+userSchema.pre("save",function(next){
     this.confirmPassword= undefined;
     next();
 });
+
+userSchema.post("save",function(){
+    console.log("post save  is called ");
+    this.__v=undefined;
+
+})
 
 const UserModel =mongoose.model("User",userSchema);
 
