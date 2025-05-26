@@ -1,0 +1,20 @@
+{
+  "name": "fastify",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/mongodb": "^9.0.2",
+    "dotenv": "^16.5.0",
+    "fastify": "^5.3.3",
+    "nodemon": "^3.1.10"
+  },
+  "type": "module"
+}
