@@ -2,7 +2,7 @@
   "name": "test-ext",
   "displayName": "Test ext",
   "version": "0.0.1",
-  "description": "test extension",
+  "description": "A basic Plasmo extension.",
   "author": "Ankit",
   "scripts": {
     "dev": "plasmo dev",
