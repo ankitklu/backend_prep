@@ -17,3 +17,12 @@ button {
   margin-top: 10px;
   white-space: pre-wrap;
 }
+
+#details div {
+  margin: 6px 0;
+  font-size: 14px;
+}
+strong {
+  color: #333;
+}
+
