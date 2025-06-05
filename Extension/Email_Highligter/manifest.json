@@ -3,7 +3,7 @@
   "name": "Email Detail Extractor",
   "version": "1.0",
   "description": "Extract details from an email like sender info, amount, and transaction ID.",
-  "permissions": ["scripting", "activeTab"],
+  "permissions": ["scripting", "activeTab","identity"],
   "host_permissions": ["https://mail.google.com/"],
   "action": {
     "default_popup": "popup.html",
@@ -13,6 +13,14 @@
       "128": "icon.png"
     }
   },
+  "oauth2": {
+    "client_id": "http://953353896097-c4td3vv9oer72k3cqh7uilm2ivnmtlte.apps.googleusercontent.com",
+        "scopes": [
+            "https://www.googleapis.com/auth/gmail.send",
+            "https://www.googleapis.com/auth/gmail.readonly"
+        ]
+    },
+
   "content_scripts": [
     {
       "matches": ["https://mail.google.com/*"],

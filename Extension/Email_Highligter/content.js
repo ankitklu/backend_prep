@@ -8,7 +8,9 @@ function highlightEmailContent() {
     { label: "Date", regex: /\b(?:\d{1,2}[\-/ ]?(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?[\-/ ]?\d{2,4})\b/gi },
     { label: "Transaction ID", regex: /(?:TXN|TRX|ID)[\s:-]?[A-Z0-9]{6,}/g },
     { label: "Email", regex: /[\w\.-]+@[\w\.-]+\.\w+/g },
-    { label: "Name", regex: /\b(?:Mr\.|Ms\.|Mrs\.|Dr\.)?\s?[A-Z][a-z]+\s[A-Z][a-z]+\b/g }
+    { label: "Name", regex: /\b(?:Mr\.|Ms\.|Mrs\.|Dr\.)?\s?[A-Z][a-z]+\s[A-Z][a-z]+\b/g },
+    { label: "Purpose", regex: /(?:Purpose|Reason)[\s:-]+\s?[A-Za-z ]{3,}/gi }
+
   ];
 
   patterns.forEach(({ label, regex }) => {

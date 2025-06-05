@@ -58,11 +58,23 @@ chrome.runtime.onMessage.addListener((request) => {
     container.innerHTML = "";
     lastExtractedEntry = request.data;
 
-    for (const [key, value] of Object.entries(request.data)) {
+    const displayEntry = (data) => {
+      for (const [key, value] of Object.entries(data)) {
+        const div = document.createElement("div");
+        div.innerHTML = `<strong>${key}:</strong> ${value}`;
+        container.appendChild(div);
+      }
+    };
+
+    displayEntry(request.data);
+
+    // 🔍 Analyze with GroqCloud
+    const fullText = Object.values(request.data).join("\n");
+    analyzeWithGroq(fullText).then((summary) => {
       const div = document.createElement("div");
-      div.innerHTML = `<strong>${key}:</strong> ${value}`;
+      div.innerHTML = `<strong>Groq Summary:</strong> <pre>${typeof summary === "object" ? JSON.stringify(summary, null, 2) : summary}</pre>`;
       container.appendChild(div);
-    }
+    });
   }
 });
 
@@ -72,21 +84,63 @@ function extractEmailDetails() {
     return el ? el.textContent.trim() : "Not found";
   };
 
-  const senderInfo = getText("h3.iw span[email]") || getText(".gD");
-  const senderEmail = getText("span[email]") || "Not found";
-  const date = getText(".g3");
-  const emailBody = document.querySelector(".a3s")?.innerText || "";
-
-  const amount = emailBody.match(/\₹\s?[\d,]+(\.\d{2})?/i)?.[0] || "Not found";
-  const txnId = emailBody.match(/(Txn|Transaction)[\s:]*[A-Z0-9-]+/i)?.[0] || "Not found";
+  const emailBody = document.querySelector(".a3s")?.innerText || "No content found";
 
   const result = {
-    "Sender Name": senderInfo,
-    "Sender Email": senderEmail,
-    "Date": date,
-    "Amount": amount,
-    "Transaction ID": txnId
+    "Full Email": emailBody
   };
 
   chrome.runtime.sendMessage({ type: "EMAIL_DETAILS", data: result });
 }
+
+
+async function analyzeWithGroq(emailText) {
+  const GROQ_API_KEY = "<groq_api_key>";
+
+  const prompt = `
+You are an information extraction assistant.
+Given an email message, extract the following fields and return them as a JSON object:
+
+- Sender Name
+- Sender Email
+- Date
+- Transaction Amount
+- Transaction ID
+- Purpose of Transaction
+
+Email:
+"""${emailText}"""
+`;
+
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${GROQ_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "llama3-70b-8192",
+      messages: [
+        { role: "system", content: "You extract structured data from email content." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.2
+    })
+  });
+
+  const data = await response.json();
+
+  try {
+    // Try to parse JSON from the assistant's reply
+    const json = JSON.parse(data.choices?.[0]?.message?.content);
+    return json;
+  } catch (e) {
+    return {
+      Error: "Groq could not return structured JSON. Response was:",
+      Raw: data.choices?.[0]?.message?.content || "No response"
+    };
+  }
+}
+
+
+
