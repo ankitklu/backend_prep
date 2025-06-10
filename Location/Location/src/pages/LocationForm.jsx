@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Papa from "papaparse";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
 const containerStyle = {
@@ -32,7 +33,6 @@ function LocationForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Convert lat/lng to numbers if provided, otherwise send as null
     const latitude = lat.trim() !== "" ? parseFloat(lat) : null;
     const longitude = lng.trim() !== "" ? parseFloat(lng) : null;
 
@@ -44,13 +44,50 @@ function LocationForm() {
       lng: longitude
     });
 
-    // Clear form and refresh
     setName("");
     setAddress("");
     setRole("admin");
     setLat("");
     setLng("");
     fetchLocations();
+  };
+
+  const handleCSVUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        const rows = results.data;
+
+        if (!Array.isArray(rows) || rows.length === 0) {
+          alert("Invalid or empty CSV file.");
+          return;
+        }
+
+        const validData = rows.filter(row =>
+          row.name && row.address && row.role
+        );
+
+        if (validData.length === 0) {
+          alert("No valid rows found in CSV.");
+          return;
+        }
+
+        try {
+          await axios.post("http://localhost:5000/api/locations/bulk", validData);
+          fetchLocations();
+        } catch (err) {
+          console.error("Bulk upload failed:", err);
+        }
+      },
+      error: (err) => {
+        console.error("Error parsing CSV:", err);
+        alert("Failed to parse CSV file.");
+      }
+    });
   };
 
   const markerColors = {
@@ -72,7 +109,17 @@ function LocationForm() {
         <button type="submit">Add Location</button>
       </form>
 
-      <LoadScript googleMapsApiKey="GOOGLE_MAPS_API_KEY">
+      <div style={{ marginBottom: "20px" }}>
+        <label>Upload CSV (name, address, lat, lng, role): </label>
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleCSVUpload}
+        />
+        <button onClick={handleCSVUpload}>Enter</button>
+      </div>
+
+      <LoadScript googleMapsApiKey="GOOGLE_API_KEY_HERE">
         <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={4}>
           {locations.map((loc, idx) => (
             <Marker

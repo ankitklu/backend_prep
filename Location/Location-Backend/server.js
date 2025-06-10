@@ -80,6 +80,67 @@ app.get("/api/locations", async (req, res) => {
   res.json(locations);
 });
 
+app.post("/api/locations/bulk", async (req, res) => {
+  try {
+    const locationsData = req.body;
+
+    if (!Array.isArray(locationsData)) {
+      return res.status(400).json({ error: "Invalid data format. Expected an array." });
+    }
+
+    const processedLocations = [];
+
+    for (const item of locationsData) {
+      const { name, address, role, lat, lng } = item;
+
+      // Basic validation
+      if (!name || !address || !role) continue;
+
+      let finalLat = lat;
+      let finalLng = lng;
+
+      // Use Geocoding if lat/lng not provided
+      if (!finalLat || !finalLng) {
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+        const geoRes = await axios.get(
+          `https://maps.googleapis.com/maps/api/geocode/json`,
+          {
+            params: {
+              address,
+              key: apiKey
+            }
+          }
+        );
+
+        const results = geoRes.data.results;
+        if (!results || results.length === 0) continue;
+
+        finalLat = results[0].geometry.location.lat;
+        finalLng = results[0].geometry.location.lng;
+      }
+
+      processedLocations.push({
+        name,
+        address,
+        role,
+        lat: finalLat,
+        lng: finalLng
+      });
+    }
+
+    if (processedLocations.length === 0) {
+      return res.status(400).json({ error: "No valid locations found to insert." });
+    }
+
+    const inserted = await Location.insertMany(processedLocations);
+    res.json({ success: true, insertedCount: inserted.length });
+  } catch (err) {
+    console.error("Error in /api/locations/bulk:", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 app.listen(5000, () => {
   console.log("Server running on http://localhost:5000");
 });
