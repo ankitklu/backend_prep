@@ -1,0 +1,11 @@
+{
+  "name": "ios",
+  "version": "1.0.0",
+  "description": "Backend of the dashboard",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
