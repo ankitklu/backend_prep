@@ -125,9 +125,9 @@ const Dashboard = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pb-24">
+    <div className="min-h-screen w-[100%] bg-gradient-to-br from-green-50 to-red-100 pb-24">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-40">
+      <div className="bg-white/80 backdrop-blur-md border-b border-gray-100/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div>
@@ -145,7 +145,7 @@ const Dashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-[100%] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {statsCards.map((stat, index) => (
@@ -224,8 +224,7 @@ const Dashboard = () => {
       {/* iOS-style Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 z-50">
         <div className="max-w-4xl mx-auto px-4 pb-4">
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 p-2">
-            <div className="flex justify-around items-end relative">
+          <div className="bg-transparent backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 p-2">            <div className="flex justify-around items-end relative">
               {navigationItems.map((item) => (
                 <div
                   key={item.id}
