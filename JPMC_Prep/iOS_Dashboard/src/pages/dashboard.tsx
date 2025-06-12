@@ -220,55 +220,6 @@ const Dashboard = () => {
           </Card>
         </div>
       </div>
-
-      {/* iOS-style Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 pb-4">
-          <div className="bg-transparent backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 p-2">            
-            <div className="flex justify-around items-end relative">
-              {navigationItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="relative"
-                  onMouseEnter={() => setHoveredItem(item.id)}
-                  onMouseLeave={() => setHoveredItem(null)}
-                >
-                  {/* Sub-menu */}
-                  {hoveredItem === item.id && (
-                    <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-white/95 backdrop-blur-xl rounded-xl shadow-xl border border-gray-200/50 p-2 min-w-48 animate-in slide-in-from-bottom-2 duration-200">
-                      <div className="grid grid-cols-1 gap-1">
-                        {item.subItems.map((subItem, index) => (
-                          <button
-                            key={index}
-                            className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100/50 transition-colors text-left w-full"
-                          >
-                            <div className={`w-8 h-8 ${item.color} rounded-lg flex items-center justify-center`}>
-                              <subItem.icon className="w-4 h-4 text-white" />
-                            </div>
-                            <span className="text-sm font-medium text-gray-700">{subItem.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                      {/* Arrow */}
-                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white/95"></div>
-                    </div>
-                  )}
-
-                  {/* Main navigation item */}
-                  <button className="flex flex-col items-center space-y-1 p-3 rounded-xl hover:bg-gray-100/50 transition-all duration-200 hover:scale-110 group">
-                    <div
-                      className={`w-12 h-12 ${item.color} rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow`}
-                    >
-                      <item.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="text-xs font-medium text-gray-700">{item.label}</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

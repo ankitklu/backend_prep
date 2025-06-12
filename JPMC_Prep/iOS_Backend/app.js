@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
+const locationRoutes = require('./routes/locationRoutes');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
 
@@ -12,6 +14,18 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+app.use(
+  '/media',
+  createProxyMiddleware({
+    target: 'http://localhost:8501',
+    changeOrigin: true,
+    pathRewrite: {
+      '^/media': '', // So /media in React becomes root in Streamlit
+    },
+  })
+);
+
 app.use('/api/auth', authRoutes);
+app.use("/api/locations", locationRoutes);
 
 module.exports = app;
