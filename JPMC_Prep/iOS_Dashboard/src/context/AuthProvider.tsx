@@ -15,7 +15,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkLogin = () => {
     const loggedIn = document.cookie.split(';').some(cookie => cookie.trim().startsWith('is_logged_in='));
+    console.log('Checking login status:', loggedIn);
     setIsLoggedIn(loggedIn);
+    console.log('Login status updated:', loggedIn);
   };
 
   useEffect(() => {

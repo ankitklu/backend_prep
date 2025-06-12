@@ -14,7 +14,7 @@ exports.loginAdmin = async (req, res) => {
   const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: '5h' });
 
   res.cookie('is_logged_in', token, {
-    httpOnly: true,
+    httpOnly: false,
     maxAge: 5 * 60 * 60 * 1000,
     sameSite: 'strict',
     secure: process.env.NODE_ENV === 'production',
