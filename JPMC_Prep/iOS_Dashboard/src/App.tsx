@@ -1,4 +1,4 @@
-import Dashboard from "./pages/Dashboard"
+import Dashboard from "./pages/dashboard"
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import { AuthProvider, useAuth } from './context/AuthProvider';
@@ -7,6 +7,7 @@ import type { JSX } from "react";
 import LocationForm from "./pages/LocationForm";
 import BottomNavBar from "./components/BottomNavBar";
 import PostGenerator from "./pages/PostGenerator";
+import CommunicationLanding from "./pages/Communications/CommunicationLanding"
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { isLoggedIn } = useAuth();
@@ -32,6 +33,9 @@ function App() {
           } />
           <Route path="/post-generator" element={
             <PostGenerator/>
+          }/>
+          <Route path="/communications" element={
+            <CommunicationLanding />
           }/>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

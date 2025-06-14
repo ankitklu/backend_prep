@@ -3,12 +3,154 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Currency Detector</title>
+  <title>Currency Detection</title>
 </head>
 <body>
-  <h1>Currency Detection Test</h1>
-  <div id="result">Detecting...</div>
-
+  <h1>Currency Detection Result:  </h1>
+  <div id="currency-result">210</div>
+  
   <script src="currency.js"></script>
+  <!-- <script>
+    console.log("Currency detection script loaded");
+    const getAmount = (str, regex) => {
+      const match = str.match(regex);
+      if (match) {
+        return Number(match[1]);
+      }
+      return null;
+    };
+    console.log("getAmount function defined", getAmount);
+
+    const setCookie = (name, value, minutesToExpire) => {
+      if (
+        typeof document === "undefined" ||
+        typeof document.cookie === "undefined"
+      ) {
+        return;
+      }
+      const date = new Date();
+      date.setTime(date.getTime() + minutesToExpire * 60 * 1000);
+      const expires = "expires=" + date.toUTCString();
+      document.cookie = name + "=" + value + ";" + expires + ";path=/";
+    };
+
+    const getCookie = (name) => {
+      if (
+        typeof document === "undefined" ||
+        typeof document.cookie === "undefined"
+      ) {
+        return null;
+      }
+      const cookieName = name + "=";
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim();
+        if (cookie.indexOf(cookieName) === 0) {
+          return cookie.substring(cookieName.length, cookie.length);
+        }
+      }
+      return null;
+    };
+
+    async function detectAndLogCurrency(
+      defaultCurrency = "INR",
+      defaultAmount = 4100
+    ) {
+      console.log("Starting currency detection...");
+      try {
+        const output = document.getElementById("currency-result");
+        console.log("Output element found:", output);
+
+        const cookieCurrency = getCookie("currency");
+        const cookieAmount = getCookie("amount");
+        console.log("Cookie Currency:", cookieCurrency);
+        console.log("Cookie Amount:", cookieAmount);
+
+        if (cookieCurrency && cookieAmount) {
+          const msg = `Using cookie data - Currency: ${cookieCurrency}, Amount: ${cookieAmount}`;
+          console.log(msg);
+          output.textContent = msg;
+          return { currency: cookieCurrency, amount: Number(cookieAmount) };
+        }
+        console.log("Fetching currency data from external source...");
+
+        const fetchFn =
+          typeof fetch !== "undefined"
+            ? fetch
+            : (...args) =>
+                import("node-fetch").then(({ default: f }) => f(...args));
+        
+        console.log("Fetch function defined:", fetchFn);
+
+        const docRes = await fetchFn(
+          "https://learnyard.tagmango.ai/web/checkout/67d5266b4bbcba673b8818d1"
+        );
+        console.log("Document response received:", docRes.status);
+        const html = await docRes.text();
+
+        const usdAmount = getAmount(html, /"usdAmount":\s*(\d+)/);
+        const eurAmount = getAmount(html, /"eurAmount":\s*(\d+)/);
+        const inrAmount = getAmount(html, /"inrAmount":\s*(\d+)/);
+
+        let country = getCookie("user_country");
+        
+        console.log("Country", country);
+
+        if (!country) {
+          console.log("Country not found in cookies, fetching through IP...");
+          const countryRes = await fetchFn(
+            "https://api-prod-new.tagmango.com/get-country-through-ip"
+          );
+          const data = await countryRes.json();
+          const result = JSON.parse(data.result);
+          country = result.country;
+          console.log(`Detected country: ${country}`);
+          setCookie("user_country", country, 24 * 60);
+        } else {
+          console.log(`Using country from cookie: ${country}`);
+        }
+
+        let currency, amount;
+        const euroCountries = [
+          "Germany", "France", "Spain", "Italy", "Netherlands", "Belgium",
+          "Austria", "Finland", "Ireland", "Portugal", "Greece", "Slovakia",
+          "Slovenia", "Estonia", "Latvia", "Lithuania", "Luxembourg", "Malta", "Cyprus",
+        ];
+
+        if (usdAmount != null && country === "United States") {
+          currency = "USD";
+          amount = usdAmount;
+        } else if (inrAmount != null && country === "India") {
+          currency = "INR";
+          amount = inrAmount;
+        } else if (eurAmount != null && euroCountries.includes(country)) {
+          currency = "EUR";
+          amount = eurAmount;
+        } else {
+          currency = defaultCurrency;
+          amount = defaultAmount;
+        }
+
+        setCookie("currency", currency, 10);
+        setCookie("amount", amount, 10);
+
+        const result = `Currency: ${currency}, Amount: ${amount}`;
+        console.log(result);
+        output.textContent = result;
+
+        return { currency, amount };
+      } catch (e) {
+        const fallback = `Error: ${e.message} — Falling back to Currency: ${defaultCurrency}, Amount: ${defaultAmount}`;
+        console.error(fallback);
+        document.getElementById("currency-result").textContent = fallback;
+        return { currency: defaultCurrency, amount: defaultAmount };
+      }
+    }
+
+    // Call function when DOM is ready
+    window.addEventListener("DOMContentLoaded", () => {
+      detectAndLogCurrency();
+    });
+  </script> -->
 </body>
 </html>
