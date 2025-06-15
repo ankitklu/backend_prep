@@ -9,6 +9,7 @@ import BottomNavBar from "./components/BottomNavBar";
 import PostGenerator from "./pages/PostGenerator";
 import CommunicationLanding from "./pages/Communications/CommunicationLanding"
 import AdminManagement from "./pages/AdminManagement";
+import MeetingsDashboard from "./pages/Meetings/MeetingsDashboard";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { isLoggedIn } = useAuth();
@@ -41,6 +42,7 @@ function App() {
           <Route path="/admin" element={
             <AdminManagement/>
           }/>
+          <Route path="/meetings" element={<MeetingsDashboard />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <BottomNavBar/>

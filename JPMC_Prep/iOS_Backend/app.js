@@ -5,6 +5,8 @@ const authRoutes = require('./routes/authRoutes');
 const locationRoutes = require('./routes/locationRoutes');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const adminRoutes = require('./routes/authRoutes');
+const meetingRoutes = require("./routes/meetings")
+const messageRoutes = require("./routes/messages")
 
 
 const app = express();
@@ -31,6 +33,7 @@ app.use('/api/auth', authRoutes);
 app.use("/api/locations", locationRoutes);
 app.use('/api/admins', adminRoutes);
 app.use("/api/admins", require("./routes/adminRoutes"));
-
+app.use("/api/meetings", meetingRoutes)
+app.use("/api/messages", messageRoutes)
 
 module.exports = app;
