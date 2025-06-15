@@ -4,8 +4,8 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
 const locationRoutes = require('./routes/locationRoutes');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-import calendarRouter from "./routes/calendarRoutes";
-import messagesRouter from "./routes/messageRoutes";
+const adminRoutes = require('./routes/authRoutes');
+
 
 const app = express();
 
@@ -29,7 +29,8 @@ app.use(
 
 app.use('/api/auth', authRoutes);
 app.use("/api/locations", locationRoutes);
-app.use("/api/calendar", calendarRouter);
-app.use("/api/messages", messagesRouter);
+app.use('/api/admins', adminRoutes);
+app.use("/api/admins", require("./routes/adminRoutes"));
+
 
 module.exports = app;

@@ -8,6 +8,7 @@ import LocationForm from "./pages/LocationForm";
 import BottomNavBar from "./components/BottomNavBar";
 import PostGenerator from "./pages/PostGenerator";
 import CommunicationLanding from "./pages/Communications/CommunicationLanding"
+import AdminManagement from "./pages/AdminManagement";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { isLoggedIn } = useAuth();
@@ -36,6 +37,9 @@ function App() {
           }/>
           <Route path="/communications" element={
             <CommunicationLanding />
+          }/>
+          <Route path="/admin" element={
+            <AdminManagement/>
           }/>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
