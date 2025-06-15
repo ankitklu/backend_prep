@@ -4,10 +4,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
 const locationRoutes = require('./routes/locationRoutes');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-<<<<<<< Updated upstream
-=======
 const adminRoutes = require('./routes/authRoutes');
->>>>>>> Stashed changes
 
 const app = express();
 
@@ -31,10 +28,7 @@ app.use(
 
 app.use('/api/auth', authRoutes);
 app.use("/api/locations", locationRoutes);
-<<<<<<< Updated upstream
-=======
 app.use('/api/admins', adminRoutes);
 app.use("/api/admins", require("./routes/adminRoutes"));
->>>>>>> Stashed changes
 
 module.exports = app;
