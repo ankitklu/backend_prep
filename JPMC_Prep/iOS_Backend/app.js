@@ -6,6 +6,7 @@ const locationRoutes = require('./routes/locationRoutes');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const adminRoutes = require('./routes/authRoutes');
 
+
 const app = express();
 
 app.use(cors({
@@ -30,5 +31,6 @@ app.use('/api/auth', authRoutes);
 app.use("/api/locations", locationRoutes);
 app.use('/api/admins', adminRoutes);
 app.use("/api/admins", require("./routes/adminRoutes"));
+
 
 module.exports = app;

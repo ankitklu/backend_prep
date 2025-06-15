@@ -1,7 +1,8 @@
 import { useState } from "react";
-// import CalendarPanel from "../components/CalendarPanel";
-// import MessageForm from "../components/MessageForm";
-// import MessageHistoryTab from "../components/MessageHistoryTab";
+import CalendarPanel from "./CalendarPanel";
+import MessageForm from "./MessageForm";
+import MessageHistoryTab from "./MessageHistoryTab";
+
 
 const CommunicationLanding = () => {
   const [activeTab, setActiveTab] = useState<"schedule" | "history">("schedule");
@@ -20,17 +21,14 @@ const CommunicationLanding = () => {
       {activeTab === "schedule" ? (
         <div className="flex flex-col md:flex-row gap-4">
           <div className="w-full md:w-1/2">
-            {/* <CalendarPanel /> */}
-            Calendar Panel Placeholder
+            <CalendarPanel/>
           </div>
           <div className="w-full md:w-1/2">
-            {/* <MessageForm /> */}
-            Message Form
+            <MessageForm/>
           </div>
         </div>
       ) : (
-        // <MessageHistoryTab />
-        <div>History tab</div>
+        <MessageHistoryTab />
       )}
     </div>
   );
