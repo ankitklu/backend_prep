@@ -10,6 +10,7 @@ import PostGenerator from "./pages/PostGenerator";
 import CommunicationLanding from "./pages/Communications/CommunicationLanding"
 import AdminManagement from "./pages/AdminManagement";
 import MeetingsDashboard from "./pages/Meetings/MeetingsDashboard";
+import Chatbot from "./components/Chatbot";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { isLoggedIn } = useAuth();
@@ -46,6 +47,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <BottomNavBar/>
+        <Chatbot />
       </Router>
     </AuthProvider>
   )
