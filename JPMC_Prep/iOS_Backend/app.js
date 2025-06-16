@@ -7,6 +7,8 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const adminRoutes = require('./routes/authRoutes');
 const meetingRoutes = require("./routes/meetings")
 const messageRoutes = require("./routes/messages")
+const axios = require('axios');
+require('dotenv').config();
 
 
 const app = express();
@@ -28,6 +30,58 @@ app.use(
     },
   })
 );
+
+const pageMap = {
+  dashboard: "/dashboard",
+  media: "/media",
+  location: "/location-form",
+  post: "/post-generator",
+  communication: "/communications",
+  admin: "/admin",
+  meetings: "/meetings",
+};
+
+app.post("/chat", async (req, res) => {
+  const message = req.body.message;
+
+  try {
+    const groqResponse = await axios.post(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        model: "llama-3.1-8b-instant",
+        messages: [
+          {
+            role: "system",
+            content: `You are a dashboard assistant. The user may ask to navigate to pages like dashboard, media, meetings, admin, etc.
+Return only a JSON with a 'reply' and optional 'redirect' field.
+Use this map: ${Object.entries(pageMap)
+              .map(([k, v]) => `${k}: ${v}`)
+              .join(", ")}.`,
+          },
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+        temperature: 0.2,
+      },
+      {
+        headers: {
+          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const text = groqResponse.data.choices[0].message.content;
+    const parsed = JSON.parse(text);
+
+    res.json(parsed);
+  } catch (err) {
+    console.error("GROQ Error:", err.response?.data || err.message);
+    res.status(500).json({ reply: "AI processing failed.", redirect: null });
+  }
+});
 
 app.use('/api/auth', authRoutes);
 app.use("/api/locations", locationRoutes);
