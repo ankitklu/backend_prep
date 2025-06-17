@@ -9,6 +9,7 @@ const meetingRoutes = require("./routes/meetings")
 const messageRoutes = require("./routes/messages")
 const axios = require('axios');
 require('dotenv').config();
+const campaignRoutes = require('./routes/campaignRoutes');
 
 
 const app = express();
@@ -39,6 +40,7 @@ const pageMap = {
   communication: "/communications",
   admin: "/admin",
   meetings: "/meetings",
+  campaigns: "/campaigns"
 };
 
 app.post("/chat", async (req, res) => {
@@ -53,7 +55,7 @@ app.post("/chat", async (req, res) => {
           {
             role: "system",
             content: `You are a dashboard assistant. The user may ask to navigate to pages like dashboard, media, meetings, admin, etc.
-Return only a JSON with a 'reply' and optional 'redirect' field.
+Return only a JSON with a 'reply' and optional 'redirect' field If the user thanks you for the service, just reply with a positive message.
 Use this map: ${Object.entries(pageMap)
               .map(([k, v]) => `${k}: ${v}`)
               .join(", ")}.`,
@@ -89,5 +91,6 @@ app.use('/api/admins', adminRoutes);
 app.use("/api/admins", require("./routes/adminRoutes"));
 app.use("/api/meetings", meetingRoutes)
 app.use("/api/messages", messageRoutes)
+app.use('/api/campaigns', campaignRoutes);
 
 module.exports = app;
