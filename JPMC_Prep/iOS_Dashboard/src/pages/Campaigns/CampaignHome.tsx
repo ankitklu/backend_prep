@@ -1,165 +1,221 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, MapPin, Target, Users, Package } from "lucide-react";
-import CampaignForm from "./CampaignForm";
-import CampaignList from "./CampaignList";
-import CampaignDashboard from "./CampaignDashboard";
-import type { Campaign } from "../types";
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Plus, BarChart3, Map, Users, Target, Home } from 'lucide-react';
+import CampaignForm from './CampaignForm';
+import CampaignList from './CampaignList';
+import CampaignDetails from './CampaignDetails';
+import Dashboard from './Dashboard';
+
+interface Campaign {
+  _id: string;
+  name: string;
+  description: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  goal: {
+    type: string;
+    target: number;
+    unit: string;
+  };
+  location: {
+    center: { lat: number; lng: number };
+    radius: number;
+  };
+  resources: Array<{ name: string; required: number; distributed: number }>;
+  volunteersRequired: number;
+  partners: string[];
+  progress: {
+    value: number;
+    updatedAt: string;
+  };
+  contact: {
+    name: string;
+    phone: string;
+    email: string;
+  };
+}
 
 const CampaignHome = () => {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [activeTab, setActiveTab] = useState('home');
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
-  const [showForm, setShowForm] = useState(false);
+  const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
 
-  const handleCreateCampaign = (campaign: Campaign) => {
-    setCampaigns([...campaigns, { ...campaign, id: Date.now().toString() }]);
-    setShowForm(false);
+  const handleViewDetails = (campaign: Campaign) => {
+    setSelectedCampaign(campaign);
+    setActiveTab('details');
   };
 
-  const handleSelectCampaign = (campaign: Campaign) => {
-    setSelectedCampaign(campaign);
+  const handleEditCampaign = (campaign: Campaign) => {
+    setEditingCampaign(campaign);
+    setActiveTab('create');
+  };
+
+  const handleBackToDashboard = () => {
+    setSelectedCampaign(null);
+    setEditingCampaign(null);
+    setActiveTab('dashboard');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="container mx-auto px-4 py-8">
+        
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            NGO Campaign Management
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-teal-600 bg-clip-text text-transparent mb-4">
+            NGO Campaign Manager
           </h1>
-          <p className="text-lg text-gray-600">
-            Manage and track your social impact campaigns effectively
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Empower your organization with comprehensive campaign management, 
+            geographical targeting, and real-time progress tracking
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Campaigns</CardTitle>
-              <Target className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{campaigns.length}</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Campaigns</CardTitle>
-              <MapPin className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {campaigns.filter(c => new Date(c.endDate) > new Date()).length}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Volunteers</CardTitle>
-              <Users className="h-4 w-4 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-600">
-                {campaigns.reduce((sum, c) => sum + c.volunteersRequired, 0)}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Resources Needed</CardTitle>
-              <Package className="h-4 w-4 text-orange-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-600">
-                {campaigns.reduce((sum, c) => sum + c.resources.length, 0)}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Main Content */}
-        <Card className="bg-white shadow-xl">
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle className="text-2xl font-bold">Campaign Management</CardTitle>
-              <Button 
-                onClick={() => setShowForm(true)}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                New Campaign
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="campaigns">All Campaigns</TabsTrigger>
-                <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+        {selectedCampaign ? (
+          <CampaignDetails 
+            campaign={selectedCampaign} 
+            onBack={handleBackToDashboard}
+          />
+        ) : (
+          <>
+            {/* Feature Cards - Only show on home tab */}
+            {activeTab === 'home' && (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-blue-50 to-blue-100">
+                  <CardHeader className="text-center">
+                    <Target className="h-12 w-12 mx-auto text-blue-600 mb-2" />
+                    <CardTitle className="text-lg text-blue-800">Goal Tracking</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-blue-700 text-center">
+                      Set and monitor campaign objectives with visual progress indicators
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-green-50 to-green-100">
+                  <CardHeader className="text-center">
+                    <Map className="h-12 w-12 mx-auto text-green-600 mb-2" />
+                    <CardTitle className="text-lg text-green-800">Geo Targeting</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-green-700 text-center">
+                      Define coverage areas with interactive maps and radius selection
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-purple-50 to-purple-100">
+                  <CardHeader className="text-center">
+                    <Users className="h-12 w-12 mx-auto text-purple-600 mb-2" />
+                    <CardTitle className="text-lg text-purple-800">Team Management</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-purple-700 text-center">
+                      Coordinate volunteers and manage partner organizations effectively
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow duration-300 border-0 bg-gradient-to-br from-orange-50 to-orange-100">
+                  <CardHeader className="text-center">
+                    <BarChart3 className="h-12 w-12 mx-auto text-orange-600 mb-2" />
+                    <CardTitle className="text-lg text-orange-800">Analytics</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-orange-700 text-center">
+                      Comprehensive reporting and data visualization for insights
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4 mb-8">
+                <TabsTrigger value="home" className="flex items-center gap-2">
+                  <Home className="h-4 w-4" />
+                  Home
+                </TabsTrigger>
+                <TabsTrigger value="dashboard" className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Analytics
+                </TabsTrigger>
+                <TabsTrigger value="campaigns" className="flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  Campaigns
+                </TabsTrigger>
+                <TabsTrigger value="create" className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Create
+                </TabsTrigger>
               </TabsList>
-              
-              <TabsContent value="overview" className="space-y-6">
-                <div className="text-center py-12">
-                  <Target className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">Welcome to Campaign Management</h3>
-                  <p className="text-gray-600 mb-6">
-                    Create, manage, and track your NGO campaigns with powerful tools for geographical targeting and progress monitoring.
-                  </p>
-                  <Button 
-                    onClick={() => setShowForm(true)}
-                    size="lg"
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Create Your First Campaign
-                  </Button>
-                </div>
+
+              <TabsContent value="home" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-center text-2xl">Welcome to NGO Campaign Manager</CardTitle>
+                    <CardDescription className="text-center text-lg">
+                      Your comprehensive solution for managing and tracking NGO campaigns
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="text-center space-y-6">
+                    <p className="text-muted-foreground max-w-3xl mx-auto">
+                      Our platform provides powerful tools for creating, managing, and tracking NGO campaigns with 
+                      geographical targeting, resource management, volunteer coordination, and real-time analytics. 
+                      Get started by exploring our features or creating your first campaign.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      <Button 
+                        onClick={() => setActiveTab('dashboard')} 
+                        size="lg" 
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      >
+                        <BarChart3 className="h-5 w-5 mr-2" />
+                        View Analytics
+                      </Button>
+                      <Button 
+                        onClick={() => setActiveTab('create')} 
+                        size="lg" 
+                        variant="outline"
+                        className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                      >
+                        <Plus className="h-5 w-5 mr-2" />
+                        Create Campaign
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
-              
-              <TabsContent value="campaigns">
+
+              <TabsContent value="dashboard" className="space-y-6">
+                <Dashboard />
+              </TabsContent>
+
+              <TabsContent value="campaigns" className="space-y-6">
                 <CampaignList 
-                  campaigns={campaigns} 
-                  onSelectCampaign={handleSelectCampaign}
-                  onUpdateCampaigns={setCampaigns}
+                  onViewDetails={handleViewDetails}
+                  onEditCampaign={handleEditCampaign}
                 />
               </TabsContent>
-              
-              <TabsContent value="dashboard">
-                {selectedCampaign ? (
-                  <CampaignDashboard campaign={selectedCampaign} />
-                ) : (
-                  <div className="text-center py-12">
-                    <Target className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Select a Campaign</h3>
-                    <p className="text-gray-600">
-                      Choose a campaign from the campaigns tab to view its detailed dashboard.
-                    </p>
-                  </div>
-                )}
+
+              <TabsContent value="create" className="space-y-6">
+                <CampaignForm />
               </TabsContent>
             </Tabs>
-          </CardContent>
-        </Card>
-
-        {/* Campaign Form Modal */}
-        {showForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <CampaignForm 
-                onSubmit={handleCreateCampaign}
-                onCancel={() => setShowForm(false)}
-              />
-            </div>
-          </div>
+          </>
         )}
+
+        {/* Footer */}
+        <div className="mt-16 text-center py-8 border-t">
+          <p className="text-muted-foreground">
+            Built with ❤️ for NGOs making a difference in the world
+          </p>
+        </div>
       </div>
     </div>
   );

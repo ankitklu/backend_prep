@@ -1,68 +1,123 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Calendar, 
-  MapPin, 
-  Users, 
-  Target, 
-  Eye, 
-  Edit, 
-  Trash2,
-  Phone,
-  Mail
-} from "lucide-react";
-import type { Campaign } from "../types";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { MapPin, Users, Calendar, Target, Eye, Edit, Trash2, Download } from 'lucide-react';
+import { format } from 'date-fns';
+import * as XLSX from 'xlsx';
 
-interface CampaignListProps {
-  campaigns: Campaign[];
-  onSelectCampaign: (campaign: Campaign) => void;
-  onUpdateCampaigns: (campaigns: Campaign[]) => void;
+interface Campaign {
+  _id: string;
+  name: string;
+  description: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  goal: {
+    type: string;
+    target: number;
+    unit: string;
+  };
+  location: {
+    center: { lat: number; lng: number };
+    radius: number;
+  };
+  resources: Array<{ name: string; required: number; distributed: number }>;
+  volunteersRequired: number;
+  partners: string[];
+  progress: {
+    value: number;
+    updatedAt: string;
+  };
+  contact: {
+    name: string;
+    phone: string;
+    email: string;
+  };
 }
 
-const CampaignList = ({ campaigns, onSelectCampaign, onUpdateCampaigns }: CampaignListProps) => {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+interface CampaignListProps {
+  onViewDetails: (campaign: Campaign) => void;
+  onEditCampaign: (campaign: Campaign) => void;
+}
 
-  const getStatusColor = (campaign: Campaign) => {
-    const now = new Date();
-    const start = new Date(campaign.startDate);
-    const end = new Date(campaign.endDate);
+const CampaignList: React.FC<CampaignListProps> = ({ onViewDetails, onEditCampaign }) => {
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    if (now < start) return "bg-yellow-100 text-yellow-800";
-    if (now > end) return "bg-gray-100 text-gray-800";
-    return "bg-green-100 text-green-800";
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
+
+  const fetchCampaigns = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/campaigns');
+      const data = await response.json();
+      setCampaigns(data);
+    } catch (error) {
+      alert("Error fetching campaigns: " + error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const getStatusText = (campaign: Campaign) => {
-    const now = new Date();
-    const start = new Date(campaign.startDate);
-    const end = new Date(campaign.endDate);
-
-    if (now < start) return "Upcoming";
-    if (now > end) return "Completed";
-    return "Active";
+  const deleteCampaign = async (id: string) => {
+    try {
+      await fetch(`http://localhost:5000/api/campaigns/${id}`, {
+        method: 'DELETE',
+      });
+      setCampaigns(campaigns.filter(campaign => campaign._id !== id));
+      alert("Campaign deleted successfully!");
+    } catch (error) {
+      alert("Error deleting campaign: " + error);
+    }
   };
 
-  const calculateProgress = (campaign: Campaign) => {
-    if (campaign.goal.target === 0) return 0;
-    return Math.min((campaign.progress.value / campaign.goal.target) * 100, 100);
+  const exportToExcel = () => {
+    const exportData = campaigns.map(campaign => ({
+      'Campaign Name': campaign.name,
+      'Type': campaign.type,
+      'Description': campaign.description,
+      'Start Date': format(new Date(campaign.startDate), 'dd/MM/yyyy'),
+      'End Date': format(new Date(campaign.endDate), 'dd/MM/yyyy'),
+      'Goal Type': campaign.goal.type,
+      'Target': campaign.goal.target,
+      'Unit': campaign.goal.unit,
+      'Progress': campaign.progress?.value || 0,
+      'Volunteers Required': campaign.volunteersRequired,
+      'Coverage Radius (km)': campaign.location.radius,
+      'Contact Person': campaign.contact.name,
+      'Contact Phone': campaign.contact.phone,
+      'Contact Email': campaign.contact.email,
+      'Partners': campaign.partners.join(', '),
+      'Resources': campaign.resources.map(r => `${r.name}: ${r.distributed}/${r.required}`).join('; ')
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Campaigns');
+    XLSX.writeFile(workbook, 'NGO_Campaigns_Export.xlsx');
+    
+    alert("Campaigns exported to Excel successfully!");
   };
 
-  const deleteCampaign = (id: string) => {
-    const updatedCampaigns = campaigns.filter(c => c.id !== id);
-    onUpdateCampaigns(updatedCampaigns);
+  const getStatusColor = (type: string) => {
+    const colors = {
+      'fundraising': 'bg-green-100 text-green-800',
+      'awareness': 'bg-blue-100 text-blue-800',
+      'health-checkup': 'bg-red-100 text-red-800',
+      'relief-distribution': 'bg-orange-100 text-orange-800',
+      'education': 'bg-purple-100 text-purple-800',
+      'environment': 'bg-emerald-100 text-emerald-800'
+    };
+    return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
-  if (campaigns.length === 0) {
+  if (loading) {
     return (
-      <div className="text-center py-12">
-        <Target className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold mb-2">No Campaigns Yet</h3>
-        <p className="text-gray-600">
-          Create your first campaign to get started with managing your social impact initiatives.
-        </p>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
@@ -70,159 +125,107 @@ const CampaignList = ({ campaigns, onSelectCampaign, onUpdateCampaigns }: Campai
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">All Campaigns ({campaigns.length})</h3>
+        <div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Campaign Dashboard
+          </h2>
+          <p className="text-muted-foreground mt-1">Manage and track all your campaigns</p>
+        </div>
+        <Button onClick={exportToExcel} className="flex items-center gap-2">
+          <Download className="h-4 w-4" />
+          Export to Excel
+        </Button>
       </div>
 
-      <div className="grid gap-6">
-        {campaigns.map((campaign) => (
-          <Card 
-            key={campaign.id} 
-            className={`transition-all hover:shadow-lg ${
-              selectedId === campaign.id ? 'ring-2 ring-blue-500' : ''
-            }`}
-          >
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl mb-2">{campaign.name}</CardTitle>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <Badge className={getStatusColor(campaign)}>
-                      {getStatusText(campaign)}
-                    </Badge>
-                    <Badge variant="outline">{campaign.type}</Badge>
-                    <Badge variant="secondary">{campaign.goal.type}</Badge>
+      {campaigns.length === 0 ? (
+        <Card>
+          <CardContent className="text-center py-12">
+            <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No Campaigns Yet</h3>
+            <p className="text-muted-foreground">Create your first campaign to get started.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {campaigns.map((campaign) => (
+            <Card key={campaign._id} className="hover:shadow-lg transition-shadow duration-200">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg line-clamp-2">{campaign.name}</CardTitle>
+                  <Badge className={getStatusColor(campaign.type)}>
+                    {campaign.type.replace('-', ' ')}
+                  </Badge>
+                </div>
+                <CardDescription className="line-clamp-3">
+                  {campaign.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Progress</span>
+                    <span className="font-medium">
+                      {campaign.progress?.value || 0} / {campaign.goal.target} {campaign.goal.unit}
+                    </span>
+                  </div>
+                  <Progress 
+                    value={((campaign.progress?.value || 0) / campaign.goal.target) * 100} 
+                    className="h-2"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span>{format(new Date(campaign.startDate),  'MMM dd')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <span>{campaign.volunteersRequired} volunteers</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span>{campaign.location.radius}km radius</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-muted-foreground" />
+                    <span>{campaign.goal.type}</span>
                   </div>
                 </div>
+
                 <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedId(campaign.id || null);
-                      onSelectCampaign(campaign);
-                    }}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => onViewDetails(campaign)}
+                    className="flex-1"
                   >
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-4 w-4 mr-1" />
+                    View
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => deleteCampaign(campaign.id!)}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => onEditCampaign(campaign)}
+                    className="flex-1"
                   >
-                    <Trash2 className="h-4 w-4 text-red-500" />
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => deleteCampaign(campaign._id)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              <p className="text-gray-600">{campaign.description}</p>
-
-              {/* Progress */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">Progress</span>
-                  <span className="text-sm text-gray-600">
-                    {campaign.progress.value} / {campaign.goal.target} {campaign.goal.unit}
-                  </span>
-                </div>
-                <Progress value={calculateProgress(campaign)} className="h-2" />
-                <div className="text-xs text-gray-500 mt-1">
-                  {calculateProgress(campaign).toFixed(1)}% complete
-                </div>
-              </div>
-
-              {/* Key Info Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-blue-600" />
-                  <div>
-                    <div className="text-xs text-gray-500">Duration</div>
-                    <div className="text-sm font-medium">
-                      {new Date(campaign.startDate).toLocaleDateString()} - {new Date(campaign.endDate).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-green-600" />
-                  <div>
-                    <div className="text-xs text-gray-500">Coverage</div>
-                    <div className="text-sm font-medium">{campaign.location.radius}km radius</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-purple-600" />
-                  <div>
-                    <div className="text-xs text-gray-500">Volunteers</div>
-                    <div className="text-sm font-medium">{campaign.volunteersRequired}</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Target className="h-4 w-4 text-orange-600" />
-                  <div>
-                    <div className="text-xs text-gray-500">Resources</div>
-                    <div className="text-sm font-medium">{campaign.resources.length} items</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Info */}
-              <div className="border-t pt-4">
-                <div className="text-sm font-medium mb-2">Contact Information</div>
-                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
-                    {campaign.contact.phone}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Mail className="h-3 w-3" />
-                    {campaign.contact.email}
-                  </div>
-                </div>
-              </div>
-
-              {/* Partners */}
-              {campaign.partners.length > 0 && (
-                <div>
-                  <div className="text-sm font-medium mb-2">Partners</div>
-                  <div className="flex flex-wrap gap-2">
-                    {campaign.partners.map((partner, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {partner}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Resources Summary */}
-              {campaign.resources.length > 0 && (
-                <div>
-                  <div className="text-sm font-medium mb-2">Resources Required</div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                    {campaign.resources.slice(0, 6).map((resource, index) => (
-                      <div key={index} className="bg-gray-50 p-2 rounded">
-                        <div className="font-medium">{resource.name}</div>
-                        <div className="text-gray-600">
-                          {resource.distributed}/{resource.required} units
-                        </div>
-                      </div>
-                    ))}
-                    {campaign.resources.length > 6 && (
-                      <div className="bg-gray-50 p-2 rounded text-center text-gray-500">
-                        +{campaign.resources.length - 6} more
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
