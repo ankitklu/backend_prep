@@ -11,6 +11,7 @@ import CommunicationLanding from "./pages/Communications/CommunicationLanding"
 import AdminManagement from "./pages/AdminManagement";
 import MeetingsDashboard from "./pages/Meetings/MeetingsDashboard";
 import Chatbot from "./components/Chatbot";
+import CampaignHome from "./pages/Campaigns/CampaignHome";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { isLoggedIn } = useAuth();
@@ -44,6 +45,7 @@ function App() {
             <AdminManagement/>
           }/>
           <Route path="/meetings" element={<MeetingsDashboard />} />
+          <Route path="/campaigns" element={<CampaignHome />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <BottomNavBar/>
