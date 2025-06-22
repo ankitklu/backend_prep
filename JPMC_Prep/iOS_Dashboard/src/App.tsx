@@ -12,6 +12,7 @@ import AdminManagement from "./pages/AdminManagement";
 import MeetingsDashboard from "./pages/Meetings/MeetingsDashboard";
 import Chatbot from "./components/Chatbot";
 import CampaignHome from "./pages/Campaigns/CampaignHome";
+import { LmsDashboard } from "./pages/LMS/LmsDashboard";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { isLoggedIn } = useAuth();
@@ -46,6 +47,7 @@ function App() {
           }/>
           <Route path="/meetings" element={<MeetingsDashboard />} />
           <Route path="/campaigns" element={<CampaignHome />} />
+          <Route path="/lms" element={<LmsDashboard />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <BottomNavBar/>
