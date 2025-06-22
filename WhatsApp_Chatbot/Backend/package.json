@@ -10,7 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.16.0",
     "qrcode-terminal": "^0.12.0",
     "twilio": "^5.7.1",
     "whatsapp-web.js": "^1.30.0"
