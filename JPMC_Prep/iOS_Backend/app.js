@@ -93,4 +93,10 @@ app.use("/api/meetings", meetingRoutes)
 app.use("/api/messages", messageRoutes)
 app.use('/api/campaigns', campaignRoutes);
 
+app.use("/api/videos", require("./routes/LMS/videos"))
+app.use("/api/topics", require("./routes/LMS/topics"))
+app.use("/api/quizzes", require("./routes/LMS/quizzes"))
+app.use("/api/users", require("./routes/LMS/users"))
+app.use("/api/progress", require("./routes/LMS/progress"))
+
 module.exports = app;

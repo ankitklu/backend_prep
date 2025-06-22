@@ -1,4 +1,4 @@
-import { Home, BarChart3, ImageIcon, Calendar, Settings, Mail, MapPin, Megaphone } from "lucide-react"
+import { Home, BarChart3, ImageIcon, Calendar, Settings, Mail, MapPin, Megaphone, MonitorPlay } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
 export default function BottomNavBar() {
@@ -91,6 +91,16 @@ export default function BottomNavBar() {
               <span className="text-xs font-medium text-gray-700">Campaigns</span>
             </button>
 
+            {/* LMS Button */}
+            <button
+              className="flex flex-col items-center space-y-1 p-3 rounded-xl hover:bg-gray-100/50 transition-all duration-200 hover:scale-110 group"
+              onClick={() => navigate("/lms")}
+            >
+              <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                <MonitorPlay className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xs font-medium text-gray-700">LMS</span>
+            </button>
           </div>
         </div>
       </div>
