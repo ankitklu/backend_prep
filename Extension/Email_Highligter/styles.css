@@ -1,28 +1,31 @@
 body {
-  font-family: Arial, sans-serif;
-  width: 500px;
-  padding: 10px;
+  font-family: system-ui, sans-serif;
+  min-width: 260px;
+  padding: 8px 12px;
 }
 
-button {
-  background-color: #007bff;
-  color: white;
-  padding: 8px 10px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
+h2 { margin: 4px 0 12px; font-size: 1.1rem; }
 
-#details {
-  margin-top: 10px;
-  white-space: pre-wrap;
-}
+.btn‑row { display: flex; gap: 6px; margin-bottom: 8px; }
+button { cursor: pointer; padding: 4px 10px; border-radius: 6px; border: none; background: #525257; color: #fff; }
+button:hover { background: #36363b; }
 
-#details div {
-  margin: 6px 0;
-  font-size: 14px;
-}
-strong {
-  color: #333;
-}
+.details { max-height: 340px; overflow-y: auto; border: 1px solid #ddd; padding: 6px; border-radius: 4px; font-size: 0.9rem; }
+.row { display: flex; gap: 6px; margin-bottom: 4px; }
+.lbl { font-weight: 600; min-width: 100px; }
+.val { word-break: break-all; }
 
+/* colour codes */
+.donation { color: green !important; }
+.complaint { color: red !important; }
+
+/* inline highlights */
+.hl { background: #fffd8b; padding: 0 2px; border-radius: 3px; }
+
+/* floating gmail button */
+.floating‑btn {
+  position: fixed; bottom: 24px; right: 24px;
+  padding: 8px 12px; background: #5e5eff; color: #fff; border: none; border-radius: 6px; z-index: 999999;
+  box-shadow: 0 2px 4px rgba(0,0,0,.3);
+}
+.floating‑btn:hover { background: #4040ff; }

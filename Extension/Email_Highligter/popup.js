@@ -1,146 +1,135 @@
+/* global chrome */
 let lastExtractedEntry = null;
 
+// === BUTTON WIRES =====================================================
+
 document.getElementById("extractBtn").addEventListener("click", () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
     chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
+      target: { tabId: tab.id },
       func: extractEmailDetails
-    });
-  });
-});
-
-document.getElementById("updateBtn").addEventListener("click", () => {
-  if (!lastExtractedEntry) {
-    alert("Please extract details first.");
-    return;
-  }
-
-  chrome.storage.local.get({ entries: [] }, (result) => {
-    const updatedEntries = result.entries;
-    updatedEntries.push(lastExtractedEntry);
-    chrome.storage.local.set({ entries: updatedEntries }, () => {
-      alert("Data updated to store.csv (in-memory)");
-    });
-  });
-});
+    })
+  })
+})
 
 document.getElementById("downloadBtn").addEventListener("click", () => {
-  chrome.storage.local.get({ entries: [] }, (result) => {
-    const entries = result.entries;
-    if (entries.length === 0) {
-      alert("No data to download.");
-      return;
-    }
+  chrome.storage.local.get({ entries: [] }, ({ entries }) => {
+    if (!entries.length) return alert("Nothing to download yet ✋🏽")
 
-    const headers = Object.keys(entries[0]);
-    const csvRows = [
+    const headers = Object.keys(entries[0])
+    const csv = [
       headers.join(","),
-      ...entries.map(e =>
-        headers.map(h => `"${(e[h] || "").replace(/"/g, '""')}"`).join(",")
-      )
-    ];
+      ...entries.map((e) => headers.map((h) => `"${(e[h] || "").replace(/"/g, '""')}"`).join(","))
+    ].join("\n")
 
-    const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const a = Object.assign(document.createElement("a"), { href: url, download: "ngo-emails.csv" })
+    document.body.append(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  })
+})
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "store.csv";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  });
-});
+document.getElementById("clearBtn").addEventListener("click", () => {
+  chrome.storage.local.clear(() => alert("Local store cleared."))
+})
 
-chrome.runtime.onMessage.addListener((request) => {
-  if (request.type === "EMAIL_DETAILS") {
-    const container = document.getElementById("details");
-    container.innerHTML = "";
-    lastExtractedEntry = request.data;
+// === MESSAGE HANDLER ==================================================
 
-    const displayEntry = (data) => {
-      for (const [key, value] of Object.entries(data)) {
-        const div = document.createElement("div");
-        div.innerHTML = `<strong>${key}:</strong> ${value}`;
-        container.appendChild(div);
-      }
-    };
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type !== "EMAIL_DETAILS") return
 
-    displayEntry(request.data);
+  const { data } = msg
+  lastExtractedEntry = data
+  renderDetails(data)
 
-    // 🔍 Analyze with GroqCloud
-    const fullText = Object.values(request.data).join("\n");
-    analyzeWithGroq(fullText).then((summary) => {
-      const div = document.createElement("div");
-      div.innerHTML = `<strong>Groq Summary:</strong> <pre>${typeof summary === "object" ? JSON.stringify(summary, null, 2) : summary}</pre>`;
-      container.appendChild(div);
-    });
-  }
-});
+  // send to Groq for deeper extraction / summary
+  const plainText = Object.values(data).join("\n")
+  analyzeWithGroq(plainText).then((json) => {
+    const out = typeof json === "object" ? JSON.stringify(json, null, 2) : json
+    appendDetail("Groq Summary", `<pre>${out}</pre>`)
+    // Persist (lazy‑append so user can hit Download later)
+    chrome.storage.local.get({ entries: [] }, ({ entries }) => {
+      entries.push(json)
+      chrome.storage.local.set({ entries })
+    })
+  })
+})
 
-function extractEmailDetails() {
-  const getText = (selector) => {
-    const el = document.querySelector(selector);
-    return el ? el.textContent.trim() : "Not found";
-  };
+// === DISPLAY HELPERS ==================================================
+function renderDetails(obj) {
+  const box = document.getElementById("details")
+  box.innerHTML = "" // flush
 
-  const emailBody = document.querySelector(".a3s")?.innerText || "No content found";
-
-  const result = {
-    "Full Email": emailBody
-  };
-
-  chrome.runtime.sendMessage({ type: "EMAIL_DETAILS", data: result });
+  const order = ["Name", "Sender Email", "Date", "Transaction ID", "Amount", "Reason", "Type"]
+  order.forEach((k) => obj[k] && appendDetail(k, obj[k]))
 }
 
+function appendDetail(label, value) {
+  const row = document.createElement("div")
+  row.className = "row"
+  row.innerHTML = `<span class="lbl">${label}</span><span class="val">${value}</span>`
+  document.getElementById("details").appendChild(row)
+}
 
-async function analyzeWithGroq(emailText) {
-  const GROQ_API_KEY = "<groq_api_key>";
+// === CONTENT‐SCRIPT INJECTION FUNCTION ===============================
+function extractEmailDetails() {
+  // This runs **inside Gmail tab** 📨
+  const bodyEl = document.querySelector(".a3s")
+  if (!bodyEl) return chrome.runtime.sendMessage({ type: "EMAIL_DETAILS", data: { Error: "Body not found" } })
+  const txt = bodyEl.innerText
 
-  const prompt = `
-You are an information extraction assistant.
-Given an email message, extract the following fields and return them as a JSON object:
+  const grab = (regex) => (txt.match(regex) || [])[0] || "" // 1st hit or blank
 
-- Sender Name
-- Sender Email
-- Date
-- Transaction Amount
-- Transaction ID
-- Purpose of Transaction
+  const data = {
+    "Name": grab(/(?:Mr\.|Ms\.|Mrs\.|Dr\.)?\s?[A-Z][a-z]+\s[A-Z][a-z]+/),
+    "Sender Email": grab(/[\w.-]+@[\w.-]+\.[\w]+/),
+    "Date": grab(/\b\d{1,2}[\-/ ]?(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?[\-/ ]?\d{2,4}\b/i),
+    "Transaction ID": grab(/(?:TXN|TRX|ID)[\s:-]?[A-Z0-9]{6,}/i),
+    "Amount": grab(/₹\s?\d{1,3}(,\d{3})*(\.\d{2})?/),
+    "Reason": grab(/(?:Purpose|Reason|Subject|Regarding)[:\- ]+([A-Za-z ]{3,})/i),
+    "Full Email": txt
+  }
 
-Email:
-"""${emailText}"""
-`;
+  // Categorise
+  const lower = txt.toLowerCase()
+  if (/(donat|contribut|fund|charity)/.test(lower)) data.Type = "Donation"
+  else if (/(complaint|issue|problem|refund)/.test(lower)) data.Type = "Complaint/Issue"
+  else data.Type = "General"
 
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+  chrome.runtime.sendMessage({ type: "EMAIL_DETAILS", data })
+}
+
+// === GROQ API =========================================================
+async function analyzeWithGroq(text) {
+  const GROQ_API_KEY = "api-key" // put in environment or storage
+
+  if (GROQ_API_KEY.startsWith("<")) return { Note: "Set GROQ_API_KEY first" }
+
+  const prompt = `You are an email‑analysis assistant for an NGO.\nExtract Sender Name, Sender Email, Date, Transaction Amount, Transaction ID, Purpose, and classify the email as Donation or Complaint.`
+
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${GROQ_API_KEY}`
+      Authorization: `Bearer ${GROQ_API_KEY}`
     },
     body: JSON.stringify({
       model: "llama3-70b-8192",
+      temperature: 0,
       messages: [
-        { role: "system", content: "You extract structured data from email content." },
-        { role: "user", content: prompt }
-      ],
-      temperature: 0.2
+        { role: "system", content: prompt },
+        { role: "user", content: text }
+      ]
     })
-  });
+  })
 
-  const data = await response.json();
-
+  const json = await res.json().catch(() => ({}))
   try {
-    // Try to parse JSON from the assistant's reply
-    const json = JSON.parse(data.choices?.[0]?.message?.content);
-    return json;
-  } catch (e) {
-    return {
-      Error: "Groq could not return structured JSON. Response was:",
-      Raw: data.choices?.[0]?.message?.content || "No response"
-    };
+    return JSON.parse(json.choices?.[0]?.message?.content)
+  } catch {
+    return { Raw: json.choices?.[0]?.message?.content || "No response" }
   }
 }
-
-
-
