@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Email Details</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <h2>Email Detail Extractor</h2>
-  <button id="extractBtn">Extract Details</button>
-  <button id="updateBtn">Update</button>
-  <button id="downloadBtn">Download CSV</button>
-  <!-- <button id="followupBtn">Send Follow-Up Email</button> -->
-  <div id="details"></div>
-  <script src="popup.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Email Extractor</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h2>Email Detail Extractor 📊</h2>
+
+    <div class="btn‑row">
+      <button id="extractBtn">🔍 Extract</button>
+      <button id="downloadBtn">⬇️ Download CSV</button>
+      <button id="clearBtn">🗑️ Clear Storage</button>
+    </div>
+
+    <!-- live preview -->
+    <div id="details" class="details"></div>
+
+    <script src="popup.js"></script>
+  </body>
 </html>
