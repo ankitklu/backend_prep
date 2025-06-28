@@ -58,8 +58,8 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       const [statsResponse, campaignsResponse] = await Promise.all([
-        fetch('http://localhost:5000/api/campaigns/stats'),
-        fetch('http://localhost:5000/api/campaigns')
+        fetch('http://localhost:5001/api/campaigns/stats'),
+        fetch('http://localhost:5001/api/campaigns')
       ]);
 
       const statsData = await statsResponse.json();

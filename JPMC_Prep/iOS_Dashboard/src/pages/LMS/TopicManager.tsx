@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import type { Topic, Video } from "../types"
 import { Plus, Edit, Trash2, BookOpen } from "lucide-react"
 
-const API_BASE = "http://localhost:5000/api"
+const API_BASE = "http://localhost:5001/api"
 
 interface TopicManagerProps {
   topics: Topic[]

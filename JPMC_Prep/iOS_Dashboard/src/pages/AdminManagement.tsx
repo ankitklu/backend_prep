@@ -33,7 +33,7 @@ export default function AdminManagement() {
   });
 
   const fetchAdmins = async () => {
-    const res = await axios.get("http://localhost:5000/api/admins/all");
+    const res = await axios.get("http://localhost:5001/api/admins/all");
     setAdmins(res.data);
   };
 
@@ -55,9 +55,9 @@ export default function AdminManagement() {
       };
 
       if (editingId) {
-        await axios.put(`http://localhost:5000/api/admins/update/${editingId}`, payload);
+        await axios.put(`http://localhost:5001/api/admins/update/${editingId}`, payload);
       } else {
-        await axios.post("http://localhost:5000/api/admins/add", payload);
+        await axios.post("http://localhost:5001/api/admins/add", payload);
       }
 
       fetchAdmins();
@@ -71,7 +71,7 @@ export default function AdminManagement() {
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this admin?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/admins/delete/${id}`);
+        await axios.delete(`http://localhost:5001/api/admins/delete/${id}`);
         fetchAdmins();
       } catch (err: any) {
         alert(err.response?.data?.error || "Failed to delete admin");

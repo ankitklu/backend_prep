@@ -20,7 +20,7 @@ const MeetingsDashboard: React.FC = () => {
 
   const fetchMeetings = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/meetings")
+      const response = await fetch("http://localhost:5001/api/meetings")
       const data = await response.json()
       setMeetings(data)
     } catch (error) {

@@ -39,7 +39,7 @@ function LocationForm() {
 
   const fetchLocations = async () => {
     try {
-      const res = await axios.get<Location[]>("http://localhost:5000/api/locations");
+      const res = await axios.get<Location[]>("http://localhost:5001/api/locations");
       setLocations(res.data);
     } catch (err) {
       console.error("Error fetching locations:", err);
@@ -57,7 +57,7 @@ function LocationForm() {
     const longitude = lng.trim() !== "" ? parseFloat(lng) : null;
 
     try {
-      await axios.post("http://localhost:5000/api/locations", {
+      await axios.post("http://localhost:5001/api/locations", {
         name,
         address,
         role,
@@ -102,7 +102,7 @@ function LocationForm() {
         }
 
         try {
-          await axios.post("http://localhost:5000/api/locations/bulk", validData);
+          await axios.post("http://localhost:5001/api/locations/bulk", validData);
           fetchLocations();
         } catch (err) {
           console.error("Bulk upload failed:", err);

@@ -22,7 +22,7 @@ const MeetingForm: React.FC<MeetingFormProps> = ({ onClose, onMeetingCreated }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const response = await fetch("http://localhost:5000/api/meetings", {
+      const response = await fetch("http://localhost:5001/api/meetings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

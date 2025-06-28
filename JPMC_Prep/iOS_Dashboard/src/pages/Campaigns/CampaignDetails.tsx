@@ -65,7 +65,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign, onBack }) =
   const updateProgress = async () => {
     setIsUpdating(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/campaigns/${campaign._id}/progress`, {
+      const response = await fetch(`http://localhost:5001/api/campaigns/${campaign._id}/progress`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ const CampaignDetails: React.FC<CampaignDetailsProps> = ({ campaign, onBack }) =
 
   const addResource = async (resource: { name: string; required: number; distributed: number }) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/campaigns/${campaign._id}/resources`, {
+      const response = await fetch(`http://localhost:5001/api/campaigns/${campaign._id}/resources`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

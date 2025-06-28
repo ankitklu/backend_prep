@@ -8,7 +8,7 @@ import { VideoPlayer } from "./VideoPlayer"
 import type { Video, Topic, User, ProgressStats } from "../types"
 import { Play, Users, BookOpen, TrendingUp } from "lucide-react"
 
-const API_BASE = "http://localhost:5000/api"
+const API_BASE = "http://localhost:5001/api"
 
 export function LmsDashboard() {
   const [videos, setVideos] = useState<Video[]>([])
