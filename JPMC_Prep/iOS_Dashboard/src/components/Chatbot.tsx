@@ -79,7 +79,7 @@ export default function Chatbot() {
     setMessages([...newMessages, typingMessage]);
 
     try {
-      const res = await axios.post("http://localhost:5000/chat", { message: input });
+      const res = await axios.post("http://localhost:5001/chat", { message: input });
       const { reply, redirect } = res.data;
 
       // Remove typing indicator and add real message

@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import type { Video, Quiz } from "../types"
 import { Play, CheckCircle, XCircle, RotateCcw } from "lucide-react"
 
-const API_BASE = "http://localhost:5000/api"
+const API_BASE = "http://localhost:5001/api"
 
 interface VideoPlayerProps {
   video: Video
@@ -167,7 +167,7 @@ export function VideoPlayer({ video, userId }: VideoPlayerProps) {
                   if (!showQuiz && !quizCompleted) {
                     handleVideoEnd()
                   }
-                }, 5000)
+                }, 5001)
               }}
             />
           </div>

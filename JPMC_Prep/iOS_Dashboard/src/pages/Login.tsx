@@ -19,7 +19,7 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/auth/login', { email, password }, { withCredentials: true });
+      await axios.post('http://localhost:5001/api/auth/login', { email, password }, { withCredentials: true });
       checkLogin();
       // Remove navigate here
     } catch (err) {

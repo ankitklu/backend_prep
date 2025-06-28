@@ -70,7 +70,7 @@ const CampaignForm = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/campaigns', {
+      const response = await fetch('http://localhost:5001/api/campaigns', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

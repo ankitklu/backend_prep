@@ -52,7 +52,7 @@ const CampaignList: React.FC<CampaignListProps> = ({ onViewDetails, onEditCampai
 
   const fetchCampaigns = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/campaigns');
+      const response = await fetch('http://localhost:5001/api/campaigns');
       const data = await response.json();
       setCampaigns(data);
     } catch (error) {
@@ -64,7 +64,7 @@ const CampaignList: React.FC<CampaignListProps> = ({ onViewDetails, onEditCampai
 
   const deleteCampaign = async (id: string) => {
     try {
-      await fetch(`http://localhost:5000/api/campaigns/${id}`, {
+      await fetch(`http://localhost:5001/api/campaigns/${id}`, {
         method: 'DELETE',
       });
       setCampaigns(campaigns.filter(campaign => campaign._id !== id));

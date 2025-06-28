@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import type { Video, Topic } from "../types"
 import { Plus, Edit, Trash2, ExternalLink } from "lucide-react"
 
-const API_BASE = "http://localhost:5000/api"
+const API_BASE = "http://localhost:5001/api"
 
 interface VideoManagerProps {
   videos: Video[]
