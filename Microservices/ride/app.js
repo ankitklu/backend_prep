@@ -6,6 +6,9 @@ const connect = require('./db/db');
 connect();
 const cookieParser = require('cookie-parser');
 const rideRoutes = require('./routes/ride.routes');
+const rabbitMQ = require('./service/rabbit');
+
+rabbitMQ.connect();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

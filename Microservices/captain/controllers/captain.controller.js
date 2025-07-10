@@ -118,3 +118,7 @@ subscribeToQueue("new-ride", (data) => {
     // Clear the pending requests
     pendingRequests.length = 0;
 });
+
+subscribeToQueue("new-ride", (data) => {
+    console.log(JSON.parse(data));
+})
