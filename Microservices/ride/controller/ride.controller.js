@@ -13,9 +13,9 @@ module.exports.createRide = async (req, res, next) => {
         destination
     })
 
-
-
+    
     await newRide.save();
+    // there will be a queue named new-ride where we will add the data
     publishToQueue("new-ride", JSON.stringify(newRide))
     res.send(newRide);
 
