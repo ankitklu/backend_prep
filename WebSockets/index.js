@@ -10,9 +10,16 @@ const io = new Server(server);  //this will handle the web socket connections
 //Socket connection
 io.on('connection',(socket)=>{
     console.log(`User connected ${socket.id}`) // every socket has a unique id
+
+    socket.on("user-message",(message)=>{  // listening to an event called user-message from the client side
+
+        console.log(`Message from ${socket.id}: ${message}`);
+
+        io.emit("message", message) // emitting the message to all the connected clients
+    })
 })
 
-app.use(express.static("/public"));
+app.use(express.static("public"));
 
 app.get("/", (req, res)=>{
     return res.sendFile(path.resolve('./public/index.html'))
