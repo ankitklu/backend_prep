@@ -1,0 +1,12 @@
+Here are 10 things you must get right 👇
+
+1 Never upload directly to your backend - use presigned URLs so files go straight to S3/GCS.
+2 Validate file type by content, not just extension - .exe can easily be renamed to .jpg.
+3. Set file size limits early - avoid memory blowups and bandwidth abuse.
+4. Use multipart/chunked uploads for large files - retry failed chunks, not the whole file.
+5. Add resumable uploads - let users pick up after a failed connection.
+6. Always virus-scan uploads asynchronously before marking them “ready.”
+7. Don’t trust user metadata - extract real MIME/type/dimensions server-side.
+8. Expire unused presigned URLs - prevents old links from being reused maliciously.
+9. Post-process asynchronously - thumbnails, compression, and indexing should happen in background jobs.
+10. Secure access with signed download URLs - never expose raw S3 paths publicly.

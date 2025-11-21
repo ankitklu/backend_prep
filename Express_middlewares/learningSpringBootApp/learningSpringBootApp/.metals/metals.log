@@ -1,0 +1,5 @@
+2025.11.20 14:02:45 INFO  Started: Metals version 1.6.3 in folders 'C:\Users\ankit\Downloads\learningSpringBootApp\learningSpringBootApp' for client Visual Studio Code 1.106.1.
+2025.11.20 14:02:46 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2025.11.20 14:05:51 INFO  Shutting down server
+2025.11.20 14:05:51 INFO  shutting down Metals
+2025.11.20 14:05:51 INFO  Exiting server
